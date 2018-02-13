@@ -1,0 +1,36 @@
+make.contigs(file=PWES.files, insert=30, deltaq=4, processors=8)
+summary.seqs(fasta=PWES.trim.contigs.fasta, processors=8)
+screen.seqs(fasta=PWES.trim.contigs.fasta, group=PWES.contigs.groups,  summary=PWES.trim.contigs.summary, maxambig=0, minlength=200, maxlength=300, processors=8)
+unique.seqs(fasta=PWES.trim.contigs.good.fasta)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.fasta, name=PWES.trim.contigs.good.names, processors=8)
+count.seqs(name=PWES.trim.contigs.good.names, group=PWES.contigs.good.groups, processors=1)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.fasta, count=PWES.trim.contigs.good.count_table, processors=8)
+align.seqs(fasta=PWES.trim.contigs.good.unique.fasta, reference=silva.v4.fasta, flip=F, processors=8)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.align, processors=8)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.flip.accnos, processors=8)
+screen.seqs(fasta=PWES.trim.contigs.good.unique.align, count=PWES.trim.contigs.good.count_table, minlength=250, optimize=start-end-minlength, maxhomop=8, processors=8)
+count.groups(count=PWES.trim.contigs.good.good.count_table)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.good.align, processors=8)
+filter.seqs(fasta=PWES.trim.contigs.good.unique.good.align, vertical=T, trump=.)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.fasta,count=PWES.trim.contigs.good.good.count_table, processors=8)
+screen.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.fasta, count=PWES.trim.contigs.good.good.count_table, minlength=250, optimize=start-end-minlength, maxhomop=8, processors=8)
+count.groups(count=PWES.trim.contigs.good.good.good.count_table)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.good.fasta, processors=8)
+
+
+unique.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.good.fasta, count=PWES.trim.contigs.good.good.good.count_table)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.good.unique.fasta, count=PWES.trim.contigs.good.unique.good.filter.good.count_table, processors=8)
+pre.cluster(fasta=PWES.trim.contigs.good.unique.good.filter.good.unique.fasta, count=PWES.trim.contigs.good.unique.good.filter.good.count_table, diffs=2, processors=1)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.fasta, count=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.count_table, processors=8)
+
+chimera.uchime(fasta=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.fasta, reference=silva.gold.align, processors=8)
+
+chimera.vsearch(fasta=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.fasta, count=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.count_table, dereplicate=t, processors=8)
+
+# Old Way
+remove.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.fasta, count=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.count_table, accnos=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.ref.uchime.accnos)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.pick.fasta, count=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.pick.count_table, processors=8)
+
+# New Way
+remove.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.fasta, count=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.count_table, accnos=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.denovo.vsearch.accnos)
+summary.seqs(fasta=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.pick.fasta, count=PWES.trim.contigs.good.unique.good.filter.good.unique.precluster.pick.count_table, processors=8)
