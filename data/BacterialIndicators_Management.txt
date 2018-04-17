@@ -1,0 +1,5 @@
+OTU	Cluster	IndVal	Prob	Domain	Phylum	Class	Order	Family	Genus
+Otu00007	3	0.393113508680565	0.044	Bacteria	Acidobacteria	Blastocatellia	Blastocatellales	Blastocatellaceae_	RB41
+Otu00008	3	0.402933364254392	0.001	Bacteria	Proteobacteria	Betaproteobacteria	Nitrosomonadales	Nitrosomonadaceae	uncultured
+Otu00016	3	0.378882193789358	0.004	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Xanthobacteraceae	uncultured
+Otu00022	3	0.402356550576785	0.004	Bacteria	Proteobacteria	Betaproteobacteria	Burkholderiales	Comamonadaceae	Piscinibacter
