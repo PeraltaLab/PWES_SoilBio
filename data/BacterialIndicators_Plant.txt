@@ -1,5 +1,6 @@
 OTU	Cluster	IndVal	Prob	Domain	Phylum	Class	Order	Family	Genus
 Otu00005	1	0.562803803227461	0.001	Bacteria	Actinobacteria	Actinobacteria	Micrococcales	Micrococcaceae	Pseudarthrobacter
+<<<<<<< HEAD
 Otu00011	1	0.569410482203058	0.006	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Xanthobacteraceae	Pseudolabrys
 Otu00015	1	0.572200755068798	0.001	Bacteria	Proteobacteria	Betaproteobacteria	SC-I-84	SC-I-84_fa	SC-I-84_ge
 Otu00028	1	0.574107561961278	0.032	Bacteria	Actinobacteria	Thermoleophilia	Gaiellales	uncultured	uncultured_ge
@@ -11,3 +12,16 @@ Otu00054	1	0.568983009882826	0.01	Bacteria	Proteobacteria	Alphaproteobacteria	Rh
 Otu00022	2	0.564374297955155	0.006	Bacteria	Proteobacteria	Betaproteobacteria	Burkholderiales	Comamonadaceae	Piscinibacter
 Otu00050	2	0.634744505343928	0.003	Bacteria	Actinobacteria	Actinobacteria	Frankiales	Nakamurellaceae	Nakamurella
 Otu00062	2	0.582963360262573	0.003	Bacteria	Actinobacteria	Actinobacteria	Micrococcales	Intrasporangiaceae	Intrasporangiaceae_unclassified
+=======
+Otu00011	1	0.569410482203058	0.01	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Xanthobacteraceae	Pseudolabrys
+Otu00015	1	0.572200755068798	0.002	Bacteria	Proteobacteria	Betaproteobacteria	SC-I-84	SC-I-84_fa	SC-I-84_ge
+Otu00028	1	0.574107561961278	0.023	Bacteria	Actinobacteria	Thermoleophilia	Gaiellales	uncultured	uncultured_ge
+Otu00029	1	0.528858413075697	0.026	Bacteria	Gemmatimonadetes	Gemmatimonadetes	Gemmatimonadales	Gemmatimonadaceae	uncultured
+Otu00034	1	0.581070037450994	0.017	Bacteria	Firmicutes	Bacilli	Bacillales	Bacillaceae	Bacillus
+Otu00044	1	0.567165424206521	0.031	Bacteria	Acidobacteria	Subgroup_6	Subgroup_6_or	Subgroup_6_fa	Subgroup_6_ge
+Otu00048	1	0.543268448402876	0.018	Bacteria	Proteobacteria	Alphaproteobacteria	Rhodospirillales	Rhodospirillales_unclassified	Rhodospirillales_unclassified
+Otu00054	1	0.568983009882826	0.015	Bacteria	Proteobacteria	Alphaproteobacteria	Rhizobiales	Phyllobacteriaceae	Mesorhizobium
+Otu00022	2	0.564374297955155	0.009	Bacteria	Proteobacteria	Betaproteobacteria	Burkholderiales	Comamonadaceae	Piscinibacter
+Otu00050	2	0.634744505343928	0.001	Bacteria	Actinobacteria	Actinobacteria	Frankiales	Nakamurellaceae	Nakamurella
+Otu00062	2	0.582963360262573	0.002	Bacteria	Actinobacteria	Actinobacteria	Micrococcales	Intrasporangiaceae	Intrasporangiaceae_unclassified
+>>>>>>> upstream/master
