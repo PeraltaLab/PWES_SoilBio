@@ -52,14 +52,15 @@ nema.comm <- nema[,-c(1:9)]
 dim(nema.comm)
 
 # Remove taxa with less than one occurences across all sites
-nema.comm.a <- nema.comm[, which(colSums(nema.comm) >= 1)]
-dim(nema.comm.a)
+#nema.comm.a <- nema.comm[, which(colSums(nema.comm) >= 1)]
+#dim(nema.comm.a)
 
-# Make Relative Abundance Matrices
-dataRELnema <- nema.comm.a
-for(i in 1:dim(nema.comm.a)[1]){
-  dataRELnema[i,] <- nema.comm.a[i,]/sum(nema.comm.a[i,])
+# Make Relative Abundance Matrices removed xxx_sample = NA
+dataRELnema <- nema.comm
+for(i in 1:dim(nema.comm)[1]){
+  dataRELnema[i,] <- nema.comm[i,]/sum(nema.comm[i,])
 }
+
 dim(dataRELnema)
 
 nemaREL <- cbind(nema.design,dataRELnema)
@@ -160,7 +161,7 @@ date_1 <- as.factor(diversity$Date)
 labels <- c("Jun-11"="2011","Jun-12"="2012", "Jun-13"="2013")
 
 # Graphing Shannon Diversity - Date x Plant over Mgmt
-p <- ggplot(diversity, aes(x=Date, y=shannon, color=as.factor(Plant)))+ scale_color_manual(name="Plant", values=c("orange","blue"), labels = c("Annual", "Perennial")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
+p <- ggplot(diversity, aes(x=Date, y=shannon, color=as.factor(Plant)))+ scale_color_manual(name="Plant", values=c("#D55E00", "#0072B2"), labels = c("Annual", "Perennial")) + stat_summary(fun.data=mean_cl_boot,size=0.75) 
 p1=p+geom_smooth(method="lm")+facet_wrap(~Management)+facet_grid(. ~ Management)
 p1 + theme_bw() + 
     theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(), axis.line 
@@ -181,25 +182,13 @@ ggsave("../figures/shannon.pdf", plot=last_plot(), device=NULL, path=NULL, scale
 ```{r perMANOVA - Bacteria}
 #PERMANOVA Date|Plant|Management
 new.data <-cbind(design,dataREL)
-adonis = adonis(new.data[,-c(1:9)] ~ Date*Management*Plant+Block, method = "bray", data = new.data, perm=1000)
+adonis = adonis(new.data[,-c(1:9)]~Block+Date*Management*Plant, method = "bray", data = new.data, perm=1000)
 adonis
-
-new.data.2011 <- subset(new.data, Year == 2011)
-adonis.2011 = adonis(new.data.2011[,-c(1:9)] ~ Management*Plant+Block, method = "bray", data = new.data.2011, perm=1000)
-adonis.2011
-
-new.data.2012 <- subset(new.data, Year == 2012)
-adonis.2012 = adonis(new.data.2012[,-c(1:9)] ~ Management*Plant+Block, method = "bray", data = new.data.2012, perm=1000)
-adonis.2012
-
-new.data.2013 <- subset(new.data, Year == 2013)
-adonis.2013 = adonis(new.data.2013[,-c(1:9)] ~ Management*Plant+Block, method = "bray", data = new.data.2013, perm=1000)
-adonis.2013
 ```
 # Microbial Ordinations
 
 ## Principal Coordinates Ordination
-```{r Ordination (PCoA) - Bacteria}
+```{r Ordination (PCoA) - Bacteria - all years}
 # Principal Coordinates Analysis
 dataREL.dist <- vegdist(dataREL, method="bray")
 
@@ -251,7 +240,7 @@ theme(panel.background = element_blank()) +
   scale_fill_manual(labels = c("2011","2012", "2013"), 
                     values = c("#FFFFFF", "#FFFF00","#336600"))  + 
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
-                     values = c(22, 21, 24)) +
+                     values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
   theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
@@ -299,11 +288,11 @@ theme(panel.background = element_blank()) +
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
   geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
   scale_colour_manual(labels = c("Annual","Perennial"), 
-                      values = c("orange", "blue")) + 
+                      values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
-                    values = c("orange", "blue")) + 
+                    values = c("#D55E00", "#0072B2")) + 
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
-                     values = c(22, 21, 24)) +
+                     values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
   theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
@@ -313,26 +302,20 @@ theme(panel.background = element_blank()) +
   labs(fill = "Plant", shape = "Management") +
   guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.10, y = 0.06, label = "bacteria")
+         annotate("text", x = -0.11, y = 0.12, label = "bacteria-all years")
 
 ggsave("../figures/16SrRNA_PWES_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
 ```
 
-# Simple Hypothesis Testing - Nematodes
-```{r perMANOVA - Nematodes}
-#PERMANOVA Date|Plant|Management
-str(nemaREL)
-adonis2 = adonis(nemaREL[,-c(1:9)] ~ Date*Management*Plant+Block, method = "bray", data = nemaREL, perm=1000)
-adonis2
-```
-# Nematode Ordinations
+## Principal Coordinates Ordination -BACTERIA seaparate years
+```{r Ordination (PCoA.2011) - Bacteria}
+# PERMANOVA - 2011 only
+new.data.2011 <- subset(new.data, Year == 2011)
+adonis.2011 = adonis(new.data.2011[,-c(1:9)] ~Block+Management*Plant, method = "bray", data = new.data.2011, perm=1000)
+adonis.2011
 
-## Principal Coordinates Ordination
-```{r Ordination (PCoA) - Nematodes}
-# Principal Coordinates Analysis
-# nema.comm.a is relativized nematode community
-dataREL.dist <- vegdist(nema.comm.a, method="bray")
+dataREL.dist <- vegdist(new.data.2011[,-c(1:9)], method="bray")
 
 pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
   # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
@@ -342,8 +325,222 @@ explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
 explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
 sum.eigb <- sum(explainvar1b, explainvar2b)
 
-explainvar1b #17.3
-explainvar2b #13.6
+explainvar1b #35.7
+explainvar2b #8.9
+
+# Principal Coordinates Analysis (Mgmt*Plant) - 2011 only
+pcoa.groups <- paste(new.data.2011$Management, new.data.2011$Plant, sep = "_")
+pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # Management
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # Plant
+
+#Plot
+df8a <- as.data.frame(pcoa.cent.dataframe)
+plot8a <- ggplot(df8a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape,
+                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
+bact.2011<- plot8a + theme(panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black")) + 
+theme(panel.background = element_blank()) + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  scale_colour_manual(labels = c("Annual","Perennial"), 
+                      values = c("#D55E00", "#0072B2")) + 
+  scale_fill_manual(labels = c("Annual","Perennial"), 
+                    values = c("#D55E00", "#0072B2")) + 
+  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+                     values = c(21, 24, 22)) +
+  #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
+  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14), 
+          panel.border = element_rect(colour = "black", size=1.25)) + 
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  xlab("PCoA 1 (35.7%)") + ylab("PCoA 2 (8.9%)") + 
+  labs(fill = "Plant", shape = "Management") +
+  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
+         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
+         annotate("text", x = -0.12, y = 0.31, label = "bacteria-2011")
+
+ggsave("../figures/bact.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+```
+
+```{r Ordination (PCoA.2012) - Bacteria}
+new.data.2013 <- subset(new.data, Year == 2013)
+adonis.2013 = adonis(new.data.2013[,-c(1:9)] ~Block+Management*Plant, method = "bray", data = new.data.2013, perm=1000)
+adonis.2013
+
+# PERMANOVA - 2012 only
+new.data.2012 <- subset(new.data, Year == 2012)
+adonis.2012 = adonis(new.data.2012[,-c(1:9)] ~Block+Management*Plant, method = "bray", data = new.data.2012, perm=1000)
+adonis.2012
+
+dataREL.dist <- vegdist(new.data.2012[,-c(1:9)], method="bray")
+
+pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
+  # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+  # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
+explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
+sum.eigb <- sum(explainvar1b, explainvar2b)
+
+explainvar1b #28.9
+explainvar2b #10.0
+
+# Principal Coordinates Analysis (Mgmt*Plant) - 2012 only
+pcoa.groups <- paste(new.data.2012$Management, new.data.2012$Plant, sep = "_")
+pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # Management
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # Plant
+
+#Plot
+df9a <- as.data.frame(pcoa.cent.dataframe)
+plot9a <- ggplot(df9a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape,
+                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
+bact.2012<- plot9a + theme(panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black")) + 
+theme(panel.background = element_blank()) + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  scale_colour_manual(labels = c("Annual","Perennial"), 
+                      values = c("#D55E00", "#0072B2")) + 
+  scale_fill_manual(labels = c("Annual","Perennial"), 
+                    values = c("#D55E00", "#0072B2")) + 
+  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+                     values = c(21, 24, 22)) +
+  #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
+  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14), 
+          panel.border = element_rect(colour = "black", size=1.25)) + 
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  xlab("PCoA 1 (28.9%)") + ylab("PCoA 2 (10.0%)") + 
+  labs(fill = "Plant", shape = "Management") +
+  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
+         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
+         annotate("text", x = -0.15, y = 0.31, label = "bacteria-2012")
+
+ggsave("../figures/bact.2012_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+```
+
+```{r Ordination (PCoA.2013) - Bacteria}
+# PERMANOVA - 2013 only
+new.data.2013 <- subset(new.data, Year == 2013)
+adonis.2013 = adonis(new.data.2013[,-c(1:9)] ~Block+Management*Plant, method = "bray", data = new.data.2013, perm=1000)
+adonis.2013
+
+dataREL.dist <- vegdist(new.data.2013[,-c(1:9)], method="bray")
+
+pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
+  # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+  # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
+explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
+sum.eigb <- sum(explainvar1b, explainvar2b)
+
+explainvar1b #26.2
+explainvar2b #13.8
+
+# Principal Coordinates Analysis (Mgmt*Plant) - 2013 only
+pcoa.groups <- paste(new.data.2013$Management, new.data.2013$Plant, sep = "_")
+pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # Management
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # Plant
+
+#Plot
+df10a <- as.data.frame(pcoa.cent.dataframe)
+plot10a <- ggplot(df10a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape,
+                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
+bact.2013<- plot10a + theme(panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black")) + 
+theme(panel.background = element_blank()) + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  scale_colour_manual(labels = c("Annual","Perennial"), 
+                      values = c("#D55E00", "#0072B2")) + 
+  scale_fill_manual(labels = c("Annual","Perennial"), 
+                    values = c("#D55E00", "#0072B2")) + 
+  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+                     values = c(21, 24, 22)) +
+  #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
+  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14), 
+          panel.border = element_rect(colour = "black", size=1.25)) + 
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  xlab("PCoA 1 (26.2%)") + ylab("PCoA 2 (13.8%)") + 
+  labs(fill = "Plant", shape = "Management") +
+  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
+         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
+         annotate("text", x = -0.1, y = 0.31, label = "bacteria-2013")
+
+ggsave("../figures/bact.2013_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+```
+
+# Simple Hypothesis Testing - Nematodes
+```{r perMANOVA - Nematodes}
+#PERMANOVA Date|Plant|Management
+str(nemaREL)
+adonis2 = adonis(nemaREL[,-c(1:9)] ~Block+Date*Management*Plant, method = "bray", data = nemaREL, perm=1000)
+adonis2
+```
+# Nematode Ordinations
+
+## Principal Coordinates Ordination
+```{r Ordination (PCoA) - Nematodes}
+# Principal Coordinates Analysis - all years
+dataREL.dist <- vegdist(dataRELnema, method="bray")
+
+pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
+  # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+  # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
+explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
+sum.eigb <- sum(explainvar1b, explainvar2b)
+
+explainvar1b #19.8
+explainvar2b #18.3
 ```
 
 ```{r}
@@ -381,17 +578,17 @@ theme(panel.background = element_blank()) +
   scale_fill_manual(labels = c("2011","2012", "2013"), 
                     values = c("#FFFFFF", "#FFFF00","#336600"))  + 
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
-                     values = c(22, 21, 24)) +
+                     values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
   theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
-  xlab("PCoA 1 (23.1%)") + ylab("PCoA 2 (9.1%)") + 
+  xlab("PCoA 1 (19.8%)") + ylab("PCoA 2 (18.3%)") + 
   labs(fill = "Date", shape = "Management") +
   guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.08, y = 0.09, label = "nematodes")
+         annotate("text", x = -0.12, y = 0.14, label = "nematodes")
 
 ggsave("../figures/nema_PWES_YrMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
@@ -428,22 +625,370 @@ theme(panel.background = element_blank()) +
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
   geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
   scale_colour_manual(labels = c("Annual","Perennial"), 
-                      values = c("orange", "blue")) + 
+                      values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
-                    values = c("orange", "blue")) + 
+                    values = c("#D55E00", "#0072B2")) + 
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
-                     values = c(22, 21, 24)) +
+                     values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
   theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
-  xlab("PCoA 1 (23.1%)") + ylab("PCoA 2 (9.1%)") + 
+  xlab("PCoA 1 (19.8%)") + ylab("PCoA 2 (18.3%)") + 
   labs(fill = "Plant", shape = "Management") +
   guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.08, y = 0.1, label = "nematodes")
+         annotate("text", x = -0.14, y = 0.2, label = "nematodes")
 
 ggsave("../figures/nema_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+```
 
+## Principal Coordinates Ordination - NEMATODES seaparate years
+```{r Ordination (PCoA.2011) - Nematodes}
+nemaREL.2011 <- subset(nemaREL, Year == 2011)
+dim(nemaREL)
+dim(nemaREL.2011)
+
+# PERMANOVA - 2011 only
+adonis(nemaREL.2011[,-c(1:9)]~Block+Management*Plant, data=nemaREL.2011)
+
+dataREL.dist <- vegdist(nemaREL.2011[,-c(1:9)], method="bray")
+
+pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
+  # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+  # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
+explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
+sum.eigb <- sum(explainvar1b, explainvar2b)
+
+explainvar1b #28.6
+explainvar2b #22.0
+
+# Principal Coordinates Analysis (Mgmt*Plant) - 2011 only
+pcoa.groups <- paste(nemaREL.2011$Management, nemaREL.2011$Plant, sep = "_")
+pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # Management
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # Plant
+
+#Plot
+df7a <- as.data.frame(pcoa.cent.dataframe)
+plot7a <- ggplot(df7a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape,
+                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
+nema.2011<- plot7a + theme(panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black")) + 
+theme(panel.background = element_blank()) + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  scale_colour_manual(labels = c("Annual","Perennial"), 
+                      values = c("#D55E00", "#0072B2")) + 
+  scale_fill_manual(labels = c("Annual","Perennial"), 
+                    values = c("#D55E00", "#0072B2")) + 
+  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+                     values = c(21, 24, 22)) +
+  #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
+  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14), 
+          panel.border = element_rect(colour = "black", size=1.25)) + 
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  xlab("PCoA 1 (28.6%)") + ylab("PCoA 2 (22.0%)") + 
+  labs(fill = "Plant", shape = "Management") +
+  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
+         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
+         annotate("text", x = -0.15, y = 0.31, label = "nematodes-2011")
+
+ggsave("../figures/nema.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+```
+
+```{r Ordination (PCoA.2012) - Nematodes}
+
+nemaREL.2012 <- subset(nemaREL, Year == 2012)
+dim(nemaREL)
+dim(nemaREL.2012)
+
+# PERMANOVA  - 2012 only
+adonis(nemaREL.2012[,-c(1:9)]~Block+Management*Plant, data=nemaREL.2012)
+
+dataREL.dist <- vegdist(nemaREL.2012[,-c(1:9)], method="bray")
+
+pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
+  # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+  # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
+explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
+sum.eigb <- sum(explainvar1b, explainvar2b)
+
+explainvar1b #25.8
+explainvar2b #17.6
+
+# Principal Coordinates Analysis (Mgmt*Plant) - 2012 only
+pcoa.groups <- paste(nemaREL.2012$Management, nemaREL.2012$Plant, sep = "_")
+pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # Management
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # Plant
+
+#Plot
+df6a <- as.data.frame(pcoa.cent.dataframe)
+plot6a <- ggplot(df6a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape,
+                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
+nema.2012<- plot6a + theme(panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black")) + 
+theme(panel.background = element_blank()) + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  scale_colour_manual(labels = c("Annual","Perennial"), 
+                      values = c("#D55E00", "#0072B2")) + 
+  scale_fill_manual(labels = c("Annual","Perennial"), 
+                    values = c("#D55E00", "#0072B2")) + 
+  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+                     values = c(21, 24, 22)) +
+  #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
+  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14), 
+          panel.border = element_rect(colour = "black", size=1.25)) + 
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  xlab("PCoA 1 (25.8%)") + ylab("PCoA 2 (17.6%)") + 
+  labs(fill = "Plant", shape = "Management") +
+  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
+         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
+         annotate("text", x = -0.15, y = 0.31, label = "nematodes-2012")
+
+ggsave("../figures/nema.2012_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+```
+
+```{r Ordination (PCoA.2013) - Nematodes}
+nemaREL.2013 <- subset(nemaREL, Year == 2013)
+
+# PERMANOVA  - 2013 only
+adonis(nemaREL.2013[,-c(1:9)]~Block+Management*Plant, data=nemaREL.2013)
+
+dataREL.dist <- vegdist(nemaREL.2013[,-c(1:9)], method="bray")
+
+pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
+  # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
+  # eig=TRUE returns eigenvalues; k = # of dimensions to calculate
+
+explainvar1b <- round(pcoa$eig[1] / sum(pcoa$eig), 3) * 100
+explainvar2b <- round(pcoa$eig[2] / sum(pcoa$eig), 3) * 100
+sum.eigb <- sum(explainvar1b, explainvar2b)
+
+explainvar1b #27.0
+explainvar2b #24.2
+
+# Principal Coordinates Analysis (Mgmt*Plant) - 2013 only
+pcoa.groups <- paste(nemaREL.2013$Management, nemaREL.2013$Plant, sep = "_")
+pcoa.points <- data.frame(pcoa$points, group = pcoa.groups)
+
+# Calculate Centroids (mean and SE)
+pcoa.L.centroids <- melt(pcoa.points, id="group", measure.vars = c("X1", "X2"))
+pcoa.centroids <- acast(pcoa.L.centroids, variable ~ group, mean)
+pcoa.centroids.se <- acast(pcoa.L.centroids, variable ~ group, se)
+pcoa.centroids.sd <- acast(pcoa.L.centroids, variable ~ group, sd)
+
+# Combine
+pcoa.cent.dataframe <- cbind(t(pcoa.centroids), t(pcoa.centroids.se))
+colnames(pcoa.cent.dataframe) <- c("V1", "V2", "V1e", "V2e")
+pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
+
+pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # Management
+pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # Plant
+
+#Plot
+df5a <- as.data.frame(pcoa.cent.dataframe)
+plot5a <- ggplot(df5a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape,
+                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
+nema.2013<- plot5a + theme(panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black")) + 
+theme(panel.background = element_blank()) + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  scale_colour_manual(labels = c("Annual","Perennial"), 
+                      values = c("#D55E00", "#0072B2")) + 
+  scale_fill_manual(labels = c("Annual","Perennial"), 
+                    values = c("#D55E00", "#0072B2")) + 
+  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+                     values = c(21, 24, 22)) +
+  #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
+  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+          axis.text.x = element_text(size=14), 
+          panel.border = element_rect(colour = "black", size=1.25)) + 
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  xlab("PCoA 1 (27.0%)") + ylab("PCoA 2 (24.2%)") + 
+  labs(fill = "Plant", shape = "Management") +
+  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
+         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
+         annotate("text", x = -0.1, y = 0.31, label = "nematodes-2013")
+
+ggsave("../figures/nema.2013_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+```
+# Bacterial community indicator species analysis 2013 only - plant
+```{r}
+new.data <-cbind(design,dataREL)
+library("labdsv")
+
+new.data.2013 <- subset(new.data, Year == 2013)
+design.type <- new.data.2013$Plant
+dataREL.2013 <- new.data.2013[,-c(1:9)]
+
+dataREL <- dataREL.2013[, colSums(dataREL.2013) > 0.05]
+bac.ind <- indval(dataREL, design.type)
+levels(design.type)
+summary(bac.ind)
+
+inds <- which(bac.ind$pval <= 0.05)
+bac.indicators <- as.data.frame(matrix(NA, nrow = length(inds), ncol = 4))
+colnames(bac.indicators) <- c("OTU", "Cluster", "IndVal", "Prob")
+
+bac.indicators$OTU <- names(inds)
+bac.indicators$Cluster <- bac.ind$maxcls[inds]
+bac.indicators$IndVal <- bac.ind$indcls[inds]
+bac.indicators$Prob <- bac.ind$pval[inds]
+
+ind.tax <- otu.tax[which(as.character(otu.tax$OTU) %in% bac.indicators$OTU), ]
+ind.tax <- ind.tax[match(ind.tax$OTU, bac.indicators$OTU), ]
+
+indicator.bac <- cbind(bac.indicators, ind.tax[, -c(1)])
+
+indicator.bac <- indicator.bac[order(as.numeric(indicator.bac$Cluster)), ]
+
+table(indicator.bac$Cluster)
+table(indicator.bac$Phylum)
+table(indicator.bac$Cluster)
+levels(design.type)
+
+# Export Bacteria Indicator Table
+write.table(indicator.bac, "../data/BacterialIndicators_Plant.txt",
+            sep="\t", row.names = F, quote = F)
+
+#bac.ind - by management
+design.type <- design$Management
+
+dataREL <- dataREL.2013[, colSums(dataREL.2013) > 0.05]
+bac.ind <- indval(dataREL, design.type)
+levels(design.type)
+summary(bac.ind)
+
+inds <- which(bac.ind$pval <= 0.05)
+bac.indicators <- as.data.frame(matrix(NA, nrow = length(inds), ncol = 4))
+colnames(bac.indicators) <- c("OTU", "Cluster", "IndVal", "Prob")
+
+bac.indicators$OTU <- names(inds)
+bac.indicators$Cluster <- bac.ind$maxcls[inds]
+bac.indicators$IndVal <- bac.ind$indcls[inds]
+bac.indicators$Prob <- bac.ind$pval[inds]
+
+ind.tax <- otu.tax[which(as.character(otu.tax$OTU) %in% bac.indicators$OTU), ]
+ind.tax <- ind.tax[match(ind.tax$OTU, bac.indicators$OTU), ]
+
+indicator.bac <- cbind(bac.indicators, ind.tax[, -c(1)])
+
+indicator.bac <- indicator.bac[order(as.numeric(indicator.bac$Cluster)), ]
+
+table(indicator.bac$Cluster)
+table(indicator.bac$Phylum)
+table(indicator.bac$Cluster)
+levels(design.type)
+
+# Export Bacteria Indicator Table
+write.table(indicator.bac, "../data/BacterialIndicators_Mgmt.txt",
+            sep="\t", row.names = F, quote = F)
+```
+# Nematode community indicator species analysis 2013 only - plant and mgmt
+```{r}
+nemaREL <- cbind(nema.design,dataRELnema)
+library("labdsv")
+
+new.data.2013 <- subset(nemaREL, Year == 2013)
+design.type <- new.data.2013$Plant
+dataREL.2013 <- new.data.2013[,-c(1:9)]
+
+dataREL <- dataREL.2013[, colSums(dataREL.2013) > 0.05]
+nema.ind <- indval(dataREL, design.type)
+levels(design.type)
+summary(nema.ind)
+
+inds <- which(nema.ind$pval <= 0.05)
+nema.indicators <- as.data.frame(matrix(NA, nrow = length(inds), ncol = 4))
+colnames(nema.indicators) <- c("taxa", "Cluster", "IndVal", "Prob")
+
+nema.indicators$taxa <- names(inds)
+nema.indicators$Cluster <- nema.ind$maxcls[inds]
+nema.indicators$IndVal <- nema.ind$indcls[inds]
+nema.indicators$Prob <- nema.ind$pval[inds]
+
+#ind.tax <- otu.tax[which(as.character(otu.tax$OTU) %in% bac.indicators$OTU), ]
+#ind.tax <- ind.tax[match(ind.tax$OTU, bac.indicators$OTU), ]
+#indicator.bac <- cbind(bac.indicators, ind.tax[, -c(1)])
+
+indicators <- nema.indicators[order(as.numeric(nema.indicators$Cluster)), ]
+
+table(indicators$Cluster)
+table(indicators$taxa)
+table(indicators$Cluster)
+levels(design.type)
+
+# Export Bacteria Indicator Table
+write.table(indicators, "../data/NemaIndicators_Plant.txt",
+            sep="\t", row.names = F, quote = F)
+
+#bac.ind - by management
+design.type <- new.data.2013$Management
+dataREL.2013 <- new.data.2013[,-c(1:9)]
+
+dataREL <- dataREL.2013[, colSums(dataREL.2013) > 0.05]
+nema.ind <- indval(dataREL, design.type)
+levels(design.type)
+summary(nema.ind)
+
+inds <- which(nema.ind$pval <= 0.05)
+nema.indicators <- as.data.frame(matrix(NA, nrow = length(inds), ncol = 4))
+colnames(nema.indicators) <- c("taxa", "Cluster", "IndVal", "Prob")
+
+nema.indicators$taxa <- names(inds)
+nema.indicators$Cluster <- nema.ind$maxcls[inds]
+nema.indicators$IndVal <- nema.ind$indcls[inds]
+nema.indicators$Prob <- nema.ind$pval[inds]
+
+indicators <- nema.indicators[order(as.numeric(nema.indicators$Cluster)), ]
+
+table(indicators$Cluster)
+table(indicators$taxa)
+table(indicators$Cluster)
+levels(design.type)
+
+# Export Bacteria Indicator Table
+write.table(indicators, "../data/NemaIndicators_Mgmt.txt",
+            sep="\t", row.names = F, quote = F)
 ```
