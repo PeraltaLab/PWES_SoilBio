@@ -959,11 +959,11 @@ table(indicators$taxa)
 table(indicators$Cluster)
 levels(design.type)
 
-# Export Bacteria Indicator Table
+# Export Nematod Indicator Table
 write.table(indicators, "../data/NemaIndicators_Plant.txt",
             sep="\t", row.names = F, quote = F)
 
-#bac.ind - by management
+#nema.ind - by management
 design.type <- new.data.2013$Management
 dataREL.2013 <- new.data.2013[,-c(1:9)]
 
@@ -988,86 +988,7 @@ table(indicators$taxa)
 table(indicators$Cluster)
 levels(design.type)
 
-<<<<<<< HEAD
-# Export Bacteria Indicator Table
-write.table(indicators, "../data/NemaIndicators_Mgmt.txt",
-=======
-```
-
-# Bacterial community indicator species analysis
-```{r}
-#bac.ind for mgmt
-library("labdsv")
-# analysis for df = new.data.2013
-
-trt.mgmt <- new.data.2013$Management
-bact.2013.dataREL <- new.data.2013[,-c(1:9)]
-bact.2013.dataREL <- bact.2013.dataREL[, colSums(bact.2013.dataREL) > 0.05]
-bac.ind <- indval(bact.2013.dataREL, trt.mgmt)
-levels(trt.mgmt)
-summary(bac.ind)
-
-inds <- which(bac.ind$pval <= 0.05)
-bac.indicators <- as.data.frame(matrix(NA, nrow = length(inds), ncol = 4))
-colnames(bac.indicators) <- c("OTU", "Cluster", "IndVal", "Prob")
-
-bac.indicators$OTU <- names(inds)
-bac.indicators$Cluster <- bac.ind$maxcls[inds]
-bac.indicators$IndVal <- bac.ind$indcls[inds]
-bac.indicators$Prob <- bac.ind$pval[inds]
-
-ind.tax <- otu.tax[which(as.character(otu.tax$OTU) %in% bac.indicators$OTU), ]
-ind.tax <- ind.tax[match(ind.tax$OTU, bac.indicators$OTU), ]
-
-indicator.bac <- cbind(bac.indicators, ind.tax[, -c(1)])
-
-indicator.bac <- indicator.bac[order(as.numeric(indicator.bac$Cluster)), ]
-
-table(indicator.bac$Cluster)
-table(indicator.bac$Phylum)
-table(indicator.bac$Cluster)
-levels(trt.mgmt)
-
-# Export Bacteria Indicator Table
-write.table(indicator.bac, "../data/BacterialIndicators_Management.txt",
-            sep="\t", row.names = F, quote = F)
-```
-
-```{r}
-#bac.ind for mgmt
-library("labdsv")
-# analysis for df = new.data.2013
-
-trt.plant <- new.data.2013$Plant
-bact.2013.dataREL <- new.data.2013[,-c(1:9)]
-bact.2013.dataREL <- bact.2013.dataREL[, colSums(bact.2013.dataREL) > 0.05]
-bac.ind <- indval(bact.2013.dataREL, trt.plant)
-levels(trt.plant)
-summary(bac.ind)
-
-inds <- which(bac.ind$pval <= 0.05)
-bac.indicators <- as.data.frame(matrix(NA, nrow = length(inds), ncol = 4))
-colnames(bac.indicators) <- c("OTU", "Cluster", "IndVal", "Prob")
-
-bac.indicators$OTU <- names(inds)
-bac.indicators$Cluster <- bac.ind$maxcls[inds]
-bac.indicators$IndVal <- bac.ind$indcls[inds]
-bac.indicators$Prob <- bac.ind$pval[inds]
-
-ind.tax <- otu.tax[which(as.character(otu.tax$OTU) %in% bac.indicators$OTU), ]
-ind.tax <- ind.tax[match(ind.tax$OTU, bac.indicators$OTU), ]
-
-indicator.bac <- cbind(bac.indicators, ind.tax[, -c(1)])
-
-indicator.bac <- indicator.bac[order(as.numeric(indicator.bac$Cluster)), ]
-
-table(indicator.bac$Cluster)
-table(indicator.bac$Phylum)
-table(indicator.bac$Cluster)
-levels(trt.plant)
-
-# Export Bacteria Indicator Table
-write.table(indicator.bac, "../data/BacterialIndicators_Plant.txt",
->>>>>>> upstream/master
+# Export Nematod Indicator Table
+write.table(indicators, "../data/NemaIndicators_Plant.txt",
             sep="\t", row.names = F, quote = F)
 ```
