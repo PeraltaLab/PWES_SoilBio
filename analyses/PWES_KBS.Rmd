@@ -39,6 +39,7 @@ require("picante")
 ```{r Import Files - Env}
 # Import Environmental Data
 design <- read.csv("../data/PWES_KBS_design.csv", header=TRUE)
+soil <- read.csv("../data/PWES_KBS_soil.csv", header=TRUE)
 ```
 
 ## Nematode Data
@@ -327,6 +328,9 @@ sum.eigb <- sum(explainvar1b, explainvar2b)
 
 explainvar1b #35.7
 explainvar2b #8.9
+
+fit <- envfit(pcoa, soil.2011.df)
+###need to add arrows on PCoA - not done yet
 
 # Principal Coordinates Analysis (Mgmt*Plant) - 2011 only
 pcoa.groups <- paste(new.data.2011$Management, new.data.2011$Plant, sep = "_")
