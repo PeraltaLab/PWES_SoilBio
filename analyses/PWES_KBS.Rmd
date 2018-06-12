@@ -310,6 +310,7 @@ ggsave("../figures/16SrRNA_PWES_PlantMgmt.pdf", plot=last_plot(), device=NULL, p
 
 ## Principal Coordinates Ordination -BACTERIA seaparate years
 ```{r Ordination (PCoA.2011) - Bacteria}
+new.data <-cbind(design,dataREL)
 # PERMANOVA - 2011 only
 new.data.2011 <- subset(new.data, Year == 2011)
 adonis.2011 = adonis(new.data.2011[,-c(1:9)] ~Block+Management*Plant, method = "bray", data = new.data.2011, perm=1000)
@@ -375,6 +376,12 @@ theme(panel.background = element_blank()) +
          annotate("text", x = -0.12, y = 0.31, label = "bacteria-2011")
 
 ggsave("../figures/bact.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+#playing around with vector overlay
+fit<- envfit(pcoa,new.data.2011$Field.ID,perm=1000)
+scores(fit, "vectors")
+
+
 ```
 
 ```{r Ordination (PCoA.2012) - Bacteria}
