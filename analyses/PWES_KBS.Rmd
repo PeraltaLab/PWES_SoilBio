@@ -330,17 +330,11 @@ sum.eigb <- sum(explainvar1b, explainvar2b)
 explainvar1b #35.7
 explainvar2b #8.9
 
-# fit <- envfit(pcoa, soil.2011.df)
-#playing around with vector overlay
-
-
 # Added by Mario ######
-soil2 <- soil[soil$Year == 2011, 17:22]
-fit <- envfit(pcoa,soil2,perm=1000)
+soil2011 <- soil[soil$Year == 2011, 17:22]
+fit <- envfit(pcoa,soil2011,perm=1000)
 fit.coords <- as.data.frame(fit$vectors$arrows) * 0.1
 ############
-
-###need to add arrows on PCoA - not done yet
 
 # Principal Coordinates Analysis (Mgmt*Plant) - 2011 only
 pcoa.groups <- paste(new.data.2011$Management, new.data.2011$Plant, sep = "_")
@@ -405,19 +399,24 @@ bact.2011
 
 ggsave("../figures/bact.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
+ggsave("../figures/bact.2011_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
 ```
 
 ```{r Ordination (PCoA.2012) - Bacteria}
-new.data.2013 <- subset(new.data, Year == 2013)
-adonis.2013 = adonis(new.data.2013[,-c(1:9)] ~Block+Management*Plant, method = "bray", data = new.data.2013, perm=1000)
-adonis.2013
-
 # PERMANOVA - 2012 only
 new.data.2012 <- subset(new.data, Year == 2012)
 adonis.2012 = adonis(new.data.2012[,-c(1:9)] ~Block+Management*Plant, method = "bray", data = new.data.2012, perm=1000)
 adonis.2012
 
 dataREL.dist <- vegdist(new.data.2012[,-c(1:9)], method="bray")
+
+# Added by Mario ######
+soil2012 <- soil[soil$Year == 2012, 17:22]
+fit <- envfit(pcoa,soil2012,perm=1000)
+fit
+fit.coords <- as.data.frame(fit$vectors$arrows) * 0.1
+############
 
 pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
   # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
@@ -459,6 +458,18 @@ theme(panel.background = element_blank()) +
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
   geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  
+   # Added By Mario ####
+  geom_segment(data=fit.coords,aes(x=0,xend=Dim1,y=0,yend=Dim2), 
+               arrow = arrow(length = unit(0.25, "cm")), 
+               colour="grey20", linetype=c(4,4,4,4,1), inherit.aes = FALSE) + 
+  geom_segment(data=fit.coords,aes(x=Dim1 * 0.98,xend=Dim1,y=Dim2 * 0.98,yend=Dim2), 
+               arrow = arrow(length = unit(0.25, "cm")), 
+               colour="grey20", inherit.aes = FALSE) +
+  geom_text(data=fit.coords,aes(x=Dim1 * 1.125,y=Dim2 * 1.125, label=rownames(fit.coords)),
+            size=3, inherit.aes = FALSE) +
+  ####################
+
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -475,8 +486,11 @@ theme(panel.background = element_blank()) +
   guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
          annotate("text", x = -0.15, y = 0.31, label = "bacteria-2012")
+bact.2012
 
 ggsave("../figures/bact.2012_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/bact.2012_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 
 ```{r Ordination (PCoA.2013) - Bacteria}
@@ -486,6 +500,13 @@ adonis.2013 = adonis(new.data.2013[,-c(1:9)] ~Block+Management*Plant, method = "
 adonis.2013
 
 dataREL.dist <- vegdist(new.data.2013[,-c(1:9)], method="bray")
+
+# Added by Mario ######
+soil2013 <- soil[soil$Year == 2013, 17:22]
+fit <- envfit(pcoa,soil2013,perm=1000)
+fit
+fit.coords <- as.data.frame(fit$vectors$arrows) * 0.1
+############
 
 pcoa <- cmdscale(dataREL.dist, k=3, eig=TRUE, add=FALSE)
   # Classical (Metric) Multidimensional Scaling; returns PCoA coordinates
@@ -527,6 +548,18 @@ theme(panel.background = element_blank()) +
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
   geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  
+     # Added By Mario ####
+  geom_segment(data=fit.coords,aes(x=0,xend=Dim1,y=0,yend=Dim2), 
+               arrow = arrow(length = unit(0.25, "cm")), 
+               colour="grey20", linetype=c(4,4,4,1,1), inherit.aes = FALSE) + 
+  geom_segment(data=fit.coords,aes(x=Dim1 * 0.98,xend=Dim1,y=Dim2 * 0.98,yend=Dim2), 
+               arrow = arrow(length = unit(0.25, "cm")), 
+               colour="grey20", inherit.aes = FALSE) +
+  geom_text(data=fit.coords,aes(x=Dim1 * 1.125,y=Dim2 * 1.125, label=rownames(fit.coords)),
+            size=3, inherit.aes = FALSE) +
+  ####################
+
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -544,7 +577,11 @@ theme(panel.background = element_blank()) +
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
          annotate("text", x = -0.1, y = 0.31, label = "bacteria-2013")
 
+bact.2013
+
 ggsave("../figures/bact.2013_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/bact.2013_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 
 # Simple Hypothesis Testing - Nematodes
@@ -743,6 +780,8 @@ theme(panel.background = element_blank()) +
          annotate("text", x = -0.15, y = 0.31, label = "nematodes-2011")
 
 ggsave("../figures/nema.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/nema.2011_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 
 ```{r Ordination (PCoA.2012) - Nematodes}
@@ -814,6 +853,8 @@ theme(panel.background = element_blank()) +
          annotate("text", x = -0.15, y = 0.31, label = "nematodes-2012")
 
 ggsave("../figures/nema.2012_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/nema.2012_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 
 ```{r Ordination (PCoA.2013) - Nematodes}
@@ -882,6 +923,8 @@ theme(panel.background = element_blank()) +
          annotate("text", x = -0.1, y = 0.31, label = "nematodes-2013")
 
 ggsave("../figures/nema.2013_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/nema.2013_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 # Bacterial community indicator species analysis 2013 only - plant
 ```{r}
