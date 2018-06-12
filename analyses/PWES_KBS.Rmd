@@ -330,7 +330,16 @@ sum.eigb <- sum(explainvar1b, explainvar2b)
 explainvar1b #35.7
 explainvar2b #8.9
 
-fit <- envfit(pcoa, soil.2011.df)
+# fit <- envfit(pcoa, soil.2011.df)
+#playing around with vector overlay
+
+
+# Added by Mario ######
+soil2 <- soil[soil$Year == 2011, 17:22]
+fit <- envfit(pcoa,soil2,perm=1000)
+fit.coords <- as.data.frame(fit$vectors$arrows) * 0.1
+############
+
 ###need to add arrows on PCoA - not done yet
 
 # Principal Coordinates Analysis (Mgmt*Plant) - 2011 only
@@ -362,6 +371,19 @@ theme(panel.background = element_blank()) +
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
   geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  
+  # Added By Mario ####
+  geom_segment(data=fit.coords,aes(x=0,xend=Dim1,y=0,yend=Dim2), 
+               arrow = arrow(length = unit(0.25, "cm")), 
+               colour="grey20", linetype=4, inherit.aes = FALSE) + 
+  geom_segment(data=fit.coords,aes(x=Dim1 * 0.98,xend=Dim1,y=Dim2 * 0.98,yend=Dim2), 
+               arrow = arrow(length = unit(0.25, "cm")), 
+               colour="grey20", inherit.aes = FALSE) +
+  geom_text(data=fit.coords,aes(x=Dim1 * 1.125,y=Dim2 * 1.125, label=rownames(fit.coords)),
+            size=3, inherit.aes = FALSE) +
+  ####################
+
+
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -379,12 +401,9 @@ theme(panel.background = element_blank()) +
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
          annotate("text", x = -0.12, y = 0.31, label = "bacteria-2011")
 
+bact.2011
+
 ggsave("../figures/bact.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
-
-#playing around with vector overlay
-fit<- envfit(pcoa,new.data.2011$Field.ID,perm=1000)
-scores(fit, "vectors")
-
 
 ```
 
