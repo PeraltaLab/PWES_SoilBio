@@ -919,16 +919,18 @@ theme(panel.background = element_blank()) +
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
   geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
   
-       # Added By Mario ####
-  geom_segment(data=fit.coords,aes(x=0,xend=Dim1,y=0,yend=Dim2), 
+  # Env Fit Vectors: Scaled at 150% for visual appearence
+  geom_segment(data=fit.coords,aes(x=0,xend=Dim1 * 1.5,y=0,yend=Dim2 * 1.5), 
                arrow = arrow(length = unit(0.25, "cm")), 
                colour="grey20", linetype=c(4,4,1,1,4,4), inherit.aes = FALSE) + 
-  geom_segment(data=fit.coords,aes(x=Dim1 * 0.98,xend=Dim1,y=Dim2 * 0.98,yend=Dim2), 
+  geom_segment(data=fit.coords,aes(x=Dim1 * 1.5 * 0.98,xend=Dim1 * 1.5,
+                                   y=Dim2 * 1.5 * 0.98,yend=Dim2 * 1.5), 
                arrow = arrow(length = unit(0.25, "cm")), 
                colour="grey20", inherit.aes = FALSE) +
-  geom_text(data=fit.coords,aes(x=Dim1 * 1.125,y=Dim2 * 1.125, label=rownames(fit.coords)),
+  geom_text(data=fit.coords,aes(x=Dim1 * c(1.6, 1.75, 2.1, 2, 6, 6),
+                                y=Dim2 * c(1.6, 1.6, 1.45, 1.65, 1.75, 1.6), 
+                                label=rownames(fit.coords)),
             size=3, inherit.aes = FALSE) +
-  ####################
 
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
