@@ -127,7 +127,6 @@ diversity <- cbind(design,richness,shannon,simp.even,J)
 # First check the order
 length(design$Management) == length(fisher)
 all.equal(gsub("-", "", rownames(design)), names(fisher))
-library(lme4)
 
 richness.lm <- lme(richness ~ Date*Management*Plant, random = ~1|Block, data = diversity)
 plot(richness.lm)
@@ -148,12 +147,11 @@ anova(shannon.lm)
 library(reshape2)
 library(dplyr)
 
-diversity.1 <- subset(diversity, Year == 2013)
-dim(diversity.1)
-
-summary <- diversity.1 %>% group_by(Management, Plant) %>% summarise(mean.richness=mean(richness), se.richness=se(richness), mean.shannon=mean(shannon), se.shannon=se(shannon))
+#summary table for bacterial diversity
+summary <- diversity %>% group_by(Management, Plant, Year) %>% summarise(mean.richness=mean(richness), se.richness=se(richness), mean.shannon=mean(shannon), se.shannon=se(shannon))
 print(summary)
 
+write.csv(summary,"diversity.bact.summary.csv")
 ```
 
 #Plot shannon diversity 
@@ -177,7 +175,7 @@ p1 + theme_bw() +
     scale_x_discrete(breaks=c("Jun-11", "Jun-12", "Jun-13"), labels=c("2011", "2012", 
           "2013"))
   
-ggsave("../figures/shannon.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=300, limitsize=TRUE)
+#ggsave("../figures/shannon.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=300, limitsize=TRUE)
 ```
 # Simple Hypothesis Testing - Microbes
 ```{r perMANOVA - Bacteria - All Yrs, echo=TRUE}
@@ -235,7 +233,7 @@ plot1a + theme(panel.grid.major = element_blank(),
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75) + 
   scale_colour_manual(labels = c("2011","2012", "2013"), 
                       values = c("#FFFFFF", "#FFFF00","#336600")) + 
   scale_fill_manual(labels = c("2011","2012", "2013"), 
@@ -243,7 +241,7 @@ theme(panel.background = element_blank()) +
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
@@ -251,9 +249,10 @@ theme(panel.background = element_blank()) +
   labs(fill = "Date", shape = "Management") +
   guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          shape = guide_legend(override.aes = list(size = 4, fill="black")))  + 
-         annotate("text", x = -0.11, y = 0.12, label = "bacteria")
+         annotate("text", -Inf, Inf, label = " bacteria", hjust = 0, 
+                  vjust = 2)
 
-ggsave("../figures/16SrRNA_PWES_YrMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/16SrRNA_PWES_YrMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
 ```
 
@@ -287,7 +286,7 @@ plot2a + theme(panel.grid.major = element_blank(),
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75) + 
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -295,7 +294,7 @@ theme(panel.background = element_blank()) +
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
@@ -303,9 +302,10 @@ theme(panel.background = element_blank()) +
   labs(fill = "Plant", shape = "Management") +
   guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.11, y = 0.12, label = "bacteria")
+        annotate("text", -Inf, Inf, label = " bacteria", hjust = 0, 
+                  vjust = 2)
 
-ggsave("../figures/16SrRNA_PWES_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/16SrRNA_PWES_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
 ```
 
@@ -363,21 +363,8 @@ bact.2011<- plot8a + theme(panel.grid.major = element_blank(),
                axis.line = element_line(colour = "black")) + 
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
-  
-  # Added By Mario ####
-  #geom_segment(data=fit.coords,aes(x=0,xend=Dim1,y=0,yend=Dim2), 
-               #arrow = arrow(length = unit(0.25, "cm")), 
-               #colour="grey20", linetype=4, inherit.aes = FALSE) + 
-  #geom_segment(data=fit.coords,aes(x=Dim1 * 0.98,xend=Dim1,y=Dim2 * 0.98,yend=Dim2), 
-               #arrow = arrow(length = unit(0.25, "cm")), 
-               #colour="grey20", inherit.aes = FALSE) +
-  #geom_text(data=fit.coords,aes(x=Dim1 * 1.125,y=Dim2 * 1.125, label=rownames(fit.coords)),
-            #size=3, inherit.aes = FALSE) + 
-  ####################
-
-
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = FALSE) + 
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -385,7 +372,7 @@ theme(panel.background = element_blank()) +
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.15, 0.15)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
@@ -393,14 +380,44 @@ theme(panel.background = element_blank()) +
   labs(fill = "Plant", shape = "Management") +
   guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.16, y = 0.15, label = "bacteria-2011")
+         annotate("text", -Inf, Inf, label = " (2011)", hjust = 0, 
+                  vjust = 2)
 
 bact.2011
 
-ggsave("../figures/bact.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#Plot
+df8a <- as.data.frame(pcoa.cent.dataframe)
+plot8a <- ggplot(df8a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape,
+                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
+bact.2011.legend<- plot8a + theme(panel.grid.major = element_blank(), 
+               panel.grid.minor = element_blank(), 
+               axis.line = element_line(colour = "black")) + 
+theme(panel.background = element_blank()) + 
+  geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75) + 
+  scale_colour_manual(labels = c("Annual","Perennial"), 
+                      values = c("#D55E00", "#0072B2")) + 
+  scale_fill_manual(labels = c("Annual","Perennial"), 
+                    values = c("#D55E00", "#0072B2")) + 
+  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+                     values = c(21, 24, 22)) +
+  coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.15, 0.15)) + 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
+          axis.text.x = element_text(size=14), 
+          panel.border = element_rect(colour = "black", size=1.25)) + 
+  theme(axis.ticks.length=unit(0.3,"cm")) + 
+  xlab("PCoA 1 (35.7%)") + ylab("PCoA 2 (8.9%)") + 
+  labs(fill = "Plant", shape = "Management") +
+  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
+         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
+         annotate("text", -Inf, Inf, label = " (2011)", hjust = 0, 
+                  vjust = 2)
+bact.2011.legend
 
-ggsave("../figures/bact.2011_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/bact.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
+#ggsave("../figures/bact.2011_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 
 ```{r Ordination (PCoA.2012) - Bacteria, echo=TRUE}
@@ -456,41 +473,28 @@ bact.2012<- plot9a + theme(panel.grid.major = element_blank(),
                axis.line = element_line(colour = "black")) + 
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
-  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
-  
-   # Added By Mario ####
-  #geom_segment(data=fit.coords,aes(x=0,xend=Dim1,y=0,yend=Dim2), 
-               #arrow = arrow(length = unit(0.25, "cm")), 
-               #colour="grey20", linetype=c(4,4,4,4,1), inherit.aes = FALSE) + 
-  #geom_segment(data=fit.coords,aes(x=Dim1 * 0.98,xend=Dim1,y=Dim2 * 0.98,yend=Dim2), 
-               #arrow = arrow(length = unit(0.25, "cm")), 
-               #colour="grey20", inherit.aes = FALSE) +
-  #geom_text(data=fit.coords,aes(x=Dim1 * 1.125,y=Dim2 * 1.125, label=rownames(fit.coords)),
-            #size=3, inherit.aes = FALSE) +
-  ####################
-
-  scale_colour_manual(labels = c("Annual","Perennial"), 
+  geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") +
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = FALSE) + 
+scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.15, 0.15)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
   xlab("PCoA 1 (28.9%)") + ylab("PCoA 2 (10.0%)") + 
   labs(fill = "Plant", shape = "Management") +
-  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
-         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.16, y = 0.15, label = "bacteria-2012")
+         annotate("text", -Inf, Inf, label = " (2012)", hjust = 0, 
+                  vjust = 2)
 bact.2012
 
-ggsave("../figures/bact.2012_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/bact.2012_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
-ggsave("../figures/bact.2012_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/bact.2012_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 
 ```{r Ordination (PCoA.2013) - Bacteria, echo=TRUE}
@@ -546,15 +550,14 @@ fit.coords <- as.data.frame(fit$vectors$arrows) * 0.1
 ############
 #Plot
 df10a <- as.data.frame(pcoa.cent.dataframe)
-plot10a <- ggplot(df10a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape,
-                 group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
+plot10a <- ggplot(df10a, aes(x=V1, y=V2, colour=pcoa.col, shape = pcoa.shape, group = interaction(pcoa.col, pcoa.shape))) + theme_bw() 
 bact.2013<- plot10a + theme(panel.grid.major = element_blank(), 
                panel.grid.minor = element_blank(), 
                axis.line = element_line(colour = "black")) + 
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = FALSE) + 
   
      # Added By Mario ####
   geom_segment(data=fit.coords,aes(x=0,xend=Dim1,y=0,yend=Dim2), 
@@ -565,8 +568,6 @@ theme(panel.background = element_blank()) +
                colour="grey20", inherit.aes = FALSE) +
   geom_text(data=fit.coords,aes(x=Dim1 * 1.125,y=Dim2 * 1.125, label=rownames(fit.coords)),
             size=3, inherit.aes = FALSE) +
-  ####################
-
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -574,21 +575,34 @@ theme(panel.background = element_blank()) +
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.15, 0.15)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
   xlab("PCoA 1 (26.2%)") + ylab("PCoA 2 (13.8%)") + 
   labs(fill = "Plant", shape = "Management") +
-  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
-         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.16, y = 0.15, label = "bacteria-2013")
-
+         annotate("text", -Inf, Inf, label = " (2013)", hjust = 0, 
+                  vjust = 2)
 bact.2013
 
-ggsave("../figures/bact.2013_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/bact.2013_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
-ggsave("../figures/bact.2013_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/bact.2013_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+```
+
+```{r Ordination (PCoA.combined) - Bacteria, echo=TRUE}
+#combine bacteria 2011,2012,2013
+library(gridExtra)
+library(cowplot)
+
+bacterialPCoA <- plot_grid(bact.2011,bact.2012,bact.2013, ncol = 1, align = 't')
+legend <- get_legend(bact.2011.legend)
+p <- plot_grid(bacterialPCoA, legend, align='hv', axis='tl')
+p
+
+ggsave("../figures/combined_bacterialPCoA.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/combined_bacterialPCoA.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 
 # Simple Hypothesis Testing - Nematodes
@@ -646,7 +660,7 @@ plot3a + theme(panel.grid.major = element_blank(),
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75) + 
   scale_colour_manual(labels = c("2011","2012", "2013"), 
                       values = c("#FFFFFF", "#FFFF00","#336600")) + 
   scale_fill_manual(labels = c("2011","2012", "2013"), 
@@ -654,7 +668,7 @@ theme(panel.background = element_blank()) +
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
@@ -662,7 +676,8 @@ theme(panel.background = element_blank()) +
   labs(fill = "Date", shape = "Management") +
   guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.12, y = 0.14, label = "nematodes")
+        annotate("text", -Inf, Inf, label = " nematodes", hjust = 0, 
+                  vjust = 2)
 
 ggsave("../figures/nema_PWES_YrMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
@@ -697,7 +712,7 @@ plot4a + theme(panel.grid.major = element_blank(),
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75) + 
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -705,7 +720,7 @@ theme(panel.background = element_blank()) +
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
@@ -713,7 +728,8 @@ theme(panel.background = element_blank()) +
   labs(fill = "Plant", shape = "Management") +
   guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
          shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.14, y = 0.2, label = "nematodes")
+        annotate("text", -Inf, Inf, label = " nematodes", hjust = 0, 
+                  vjust = 2)
 
 ggsave("../figures/nema_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
@@ -768,7 +784,7 @@ nema.2011<- plot7a + theme(panel.grid.major = element_blank(),
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = FALSE) + 
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -776,19 +792,18 @@ theme(panel.background = element_blank()) +
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.25), ylim = c(-0.2, 0.27)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
   xlab("PCoA 1 (28.6%)") + ylab("PCoA 2 (22.0%)") + 
   labs(fill = "Plant", shape = "Management") +
-  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
-         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.15, y = 0.27, label = "nematodes-2011")
+        annotate("text", -Inf, Inf, label = " (2011)", hjust = 0, 
+                  vjust = 2)
 nema.2011
-ggsave("../figures/nema.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/nema.2011_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
-ggsave("../figures/nema.2011_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/nema.2011_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 
 ```{r Ordination (PCoA.2012) - Nematodes, echo=TRUE}
@@ -840,7 +855,7 @@ nema.2012<- plot6a + theme(panel.grid.major = element_blank(),
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = FALSE) + 
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -848,19 +863,19 @@ theme(panel.background = element_blank()) +
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.25), ylim = c(-0.2, 0.27)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
   xlab("PCoA 1 (25.8%)") + ylab("PCoA 2 (17.6%)") + 
   labs(fill = "Plant", shape = "Management") +
-  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
-         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.15, y = 0.27, label = "nematodes-2012")
+        annotate("text", -Inf, Inf, label = " (2012)", hjust = 0, 
+                  vjust = 2)
 nema.2012
-ggsave("../figures/nema.2012_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
-ggsave("../figures/nema.2012_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/nema.2012_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+#ggsave("../figures/nema.2012_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 
 ```{r Ordination (PCoA.2013) - Nematodes, echo=TRUE}
@@ -917,7 +932,7 @@ nema.2013<- plot5a + theme(panel.grid.major = element_blank(),
 theme(panel.background = element_blank()) + 
   geom_errorbarh(aes(xmax=V1+V1e, xmin=V1-V1e, height=0.01), colour="black") +    
   geom_errorbar(aes(ymax=V2+V2e, ymin=V2-V2e, width=0.01), colour="black") + 
-  geom_point(aes(fill=pcoa.col), colour = "black", size=6, stroke = 0.75) + 
+  geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = FALSE) + 
   
   # Env Fit Vectors: Scaled at 150% for visual appearence
   geom_segment(data=fit.coords,aes(x=0,xend=Dim1 * 1.5,y=0,yend=Dim2 * 1.5), 
@@ -931,7 +946,6 @@ theme(panel.background = element_blank()) +
                                 y=Dim2 * c(1.6, 1.6, 1.45, 1.65, 1.75, 1.6), 
                                 label=rownames(fit.coords)),
             size=3, inherit.aes = FALSE) +
-
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
@@ -939,19 +953,34 @@ theme(panel.background = element_blank()) +
   scale_shape_manual(labels = c("HighN","LowN","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.25), ylim = c(-0.2, 0.27)) + 
-  theme(axis.title = element_text(size=18), axis.text=element_text(size=14), 
+  theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
           axis.text.x = element_text(size=14), 
           panel.border = element_rect(colour = "black", size=1.25)) + 
   theme(axis.ticks.length=unit(0.3,"cm")) + 
   xlab("PCoA 1 (27.0%)") + ylab("PCoA 2 (24.2%)") + 
   labs(fill = "Plant", shape = "Management") +
-  guides(fill = guide_legend(override.aes = list(pch=21, size = 4, colour="black")),
-         shape = guide_legend(override.aes = list(size = 4, fill="black"))) + 
-         annotate("text", x = -0.15, y = 0.27, label = "nematodes-2013")
+         annotate("text", -Inf, Inf, label = " (2013)", hjust = 0, 
+                  vjust = 2)
 nema.2013
-ggsave("../figures/nema.2013_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 
-ggsave("../figures/nema.2013_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+#ggsave("../figures/nema.2013_PlantMgmt.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+#ggsave("../figures/nema.2013_PlantMgmt.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+```
+
+```{r Ordination (PCoA.combined) - Nematodes, echo=TRUE}
+#combine bacteria 2011,2012,2013
+library(gridExtra)
+library(cowplot)
+
+nemaPCoA <- plot_grid(nema.2011,nema.2012,nema.2013, ncol = 1, align = 't')
+legend <- get_legend(bact.2011.legend)
+p <- plot_grid(nemaPCoA, legend, align='hv', axis='tl')
+p
+
+ggsave("../figures/combined_nematodesPCoA.pdf", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
+
+ggsave("../figures/combined_nematodesPCoA.png", plot=last_plot(), device=NULL, path=NULL, scale=1, width=NA, height=NA, dpi=900, limitsize=TRUE)
 ```
 # Bacterial community indicator species analysis 2013 only - plant
 ```{r Bacteria Indicator Species, include=FALSE}
