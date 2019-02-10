@@ -107,7 +107,8 @@ PWESdata.r <- rrarefy(otus, 80000)
 fisher <- fisher.alpha(PWESdata.r)
 
 # Species Richness
-richness <- rowSums((PWESdata.r >= 1))
+#richness <- rowSums((PWESdata.r >= 1))
+richness <- rowSums((otus >= 1))
 
 # Shannon Diversity
 shannon <- diversity(PWESdata.r, "shannon")
@@ -127,18 +128,23 @@ diversity <- cbind(design,richness,shannon,simp.even,J)
 # First check the order
 length(design$Management) == length(fisher)
 all.equal(gsub("-", "", rownames(design)), names(fisher))
-
-richness.lm <- lme(richness ~ Date*Management*Plant, random = ~1|Block, data = diversity)
+library(lme4)
+richness.lm <- lmer(richness ~ Date*Management*Plant + (1|Block), data = diversity)
 plot(richness.lm)
 richness.lm
 anova(richness.lm)
 
-evenness.lm <- lme(simp.even ~ Date*Management*Plant, random = ~1|Block, data = diversity)
+richness.lm2 <- lmer(richness ~ Management*Plant + (1|Block), data = diversity)
+plot(richness.lm2)
+richness.lm2
+anova(richness.lm2)
+
+evenness.lm <- lmer(simp.even ~ Date*Management*Plant + (1|Block), data = diversity)
 plot(evenness.lm)
 evenness.lm
 anova(evenness.lm)
 
-shannon.lm <- lme(shannon ~ Date*Management*Plant, random = ~1|Block, data = diversity)
+shannon.lm <- lmer(shannon ~ Date*Management*Plant + (1|Block), data = diversity)
 plot(shannon.lm)
 shannon.lm
 anova(shannon.lm)
