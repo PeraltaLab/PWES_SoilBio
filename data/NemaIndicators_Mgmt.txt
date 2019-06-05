@@ -1,3 +1,2 @@
 taxa	Cluster	IndVal	Prob
 Dauerlarvae	3	0.931585971699867	0.001
-Qudsianematidae	3	0.471091669657085	0.043

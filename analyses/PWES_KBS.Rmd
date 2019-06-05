@@ -1,6 +1,6 @@
 ---
 title: "Perenniality (and/or) management drives soil biological communities and functions"
-author: "Christine D. Sprunger, Ariane L. Peralta, Steven Culman, Jay T. Lennon, Sieglinde S. Snapp"
+author: "Christine D. Sprunger, Steven W. Culman, Ariane L. Peralta, Tiana DuPont, Jay T. Lennon, Sieglinde S. Snapp"
 date: "Last updated on `r format(Sys.time(), '%d %B, %Y')`"
 header-includes:
   - \usepackage{array}
@@ -68,7 +68,7 @@ nemaREL <- cbind(nema.design,dataRELnema)
 dim(nemaREL)
 ```
 
-## Microbial Data
+## Bacterial Data
 ```{r Import Files - Bacteria, include=FALSE}
 # Import OTU data
 # Import Raw Data
@@ -121,6 +121,7 @@ J <- shannon/log(specnumber(PWESdata.r[,-c(1:1)]))
 
 #combined richness, diversity, evenness
 diversity <- cbind(design,richness,shannon,simp.even,J)
+write.csv(diversity,"diversity.bact.raw.csv")
 ```
 
 # Diversity Metrics - Hypothesis Testing
@@ -128,7 +129,7 @@ diversity <- cbind(design,richness,shannon,simp.even,J)
 # First check the order
 length(design$Management) == length(fisher)
 all.equal(gsub("-", "", rownames(design)), names(fisher))
-library(lme4)
+library(lmerTest)
 richness.lm <- lmer(richness ~ Date*Management*Plant + (1|Block), data = diversity)
 plot(richness.lm)
 richness.lm
@@ -190,7 +191,7 @@ new.data <-cbind(design,dataREL)
 adonis = adonis(new.data[,-c(1:9)]~Block+Date*Management*Plant, method = "bray", data = new.data, perm=1000)
 adonis
 ```
-# Microbial Ordinations
+# Bacterial Ordinations
 
 ## Principal Coordinates Ordination
 ```{r Ordination (PCoA) - Bacteria - all years, include=FALSE}
@@ -244,7 +245,7 @@ theme(panel.background = element_blank()) +
                       values = c("#FFFFFF", "#FFFF00","#336600")) + 
   scale_fill_manual(labels = c("2011","2012", "2013"), 
                     values = c("#FFFFFF", "#FFFF00","#336600"))  + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -297,7 +298,7 @@ theme(panel.background = element_blank()) +
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -375,7 +376,7 @@ theme(panel.background = element_blank()) +
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.15, 0.15)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
@@ -406,7 +407,7 @@ theme(panel.background = element_blank()) +
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.15, 0.15)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
@@ -485,7 +486,7 @@ scale_colour_manual(labels = c("Annual","Perennial"),
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.15, 0.15)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
@@ -540,18 +541,12 @@ pcoa.cent.treats <- rownames(pcoa.cent.dataframe)
 pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # Management
 pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # Plant
 
-# Added by Mario ######
-#soil2013 <- soil[soil$Year == 2013, 17:22]
-#fit <- envfit(pcoa,soil2013,perm=1000)
+# Updated by AP with env2013 data
+#env2013 <- read.csv("../data/EnvironronmentalFactors2013.csv", header=TRUE)
+#soil2013 <- env2013[,(9:14)]
+#fit <- envfit(pcoa,soil2013,perm=1000, na.rm=TRUE)
 #fit
 #fit.coords <- as.data.frame(fit$vectors$arrows) * 0.1
-
-# Updated by AP with env2013 data
-env2013 <- read.csv("../data/EnvironronmentalFactors2013.csv", header=TRUE)
-soil2013 <- env2013[,(9:14)]
-fit <- envfit(pcoa,soil2013,perm=1000, na.rm=TRUE)
-fit
-fit.coords <- as.data.frame(fit$vectors$arrows) * 0.1
 
 ############
 #Plot
@@ -566,19 +561,19 @@ theme(panel.background = element_blank()) +
   geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = FALSE) + 
   
      # Added By Mario ####
-  geom_segment(data=fit.coords,aes(x=0,xend=Dim1,y=0,yend=Dim2), 
-               arrow = arrow(length = unit(0.25, "cm")), 
-               colour="grey20", linetype=c(1,1,4,4,1,1), inherit.aes = FALSE) + 
-  geom_segment(data=fit.coords,aes(x=Dim1 * 0.98,xend=Dim1,y=Dim2 * 0.98,yend=Dim2), 
-               arrow = arrow(length = unit(0.25, "cm")), 
-               colour="grey20", inherit.aes = FALSE) +
-  geom_text(data=fit.coords,aes(x=Dim1 * 1.125,y=Dim2 * 1.125, label=rownames(fit.coords)),
-            size=3, inherit.aes = FALSE) +
+  #geom_segment(data=fit.coords,aes(x=0,xend=Dim1,y=0,yend=Dim2), 
+               #arrow = arrow(length = unit(0.25, "cm")), 
+               #colour="grey20", linetype=c(1,1,4,4,1,1), inherit.aes = FALSE) + 
+  #geom_segment(data=fit.coords,aes(x=Dim1 * 0.98,xend=Dim1,y=Dim2 * 0.98,yend=Dim2), 
+               #arrow = arrow(length = unit(0.25, "cm")), 
+               #colour="grey20", inherit.aes = FALSE) +
+  #geom_text(data=fit.coords,aes(x=Dim1 * 1.125,y=Dim2 * 1.125, label=rownames(fit.coords)),
+            #size=3, inherit.aes = FALSE) +
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.2), ylim = c(-0.15, 0.15)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
@@ -671,7 +666,7 @@ theme(panel.background = element_blank()) +
                       values = c("#FFFFFF", "#FFFF00","#336600")) + 
   scale_fill_manual(labels = c("2011","2012", "2013"), 
                     values = c("#FFFFFF", "#FFFF00","#336600"))  + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -723,7 +718,7 @@ theme(panel.background = element_blank()) +
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   #coord_cartesian(xlim = c(-0.25, 0.5), ylim = c(-0.35, 0.3)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -795,7 +790,7 @@ theme(panel.background = element_blank()) +
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.25), ylim = c(-0.2, 0.27)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14),
@@ -866,7 +861,7 @@ theme(panel.background = element_blank()) +
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.25), ylim = c(-0.2, 0.27)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -922,11 +917,11 @@ pcoa.col <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 2)) # Managem
 pcoa.shape <- as.factor(sapply(strsplit(pcoa.cent.treats, "_"), `[`, 1))  # Plant
 
 # Updated by AP with env2013 data
-env2013 <- read.csv("../data/EnvironronmentalFactors2013.csv", header=TRUE)
-soil2013 <- env2013[,(9:14)]
-fit <- envfit(pcoa,soil2013,perm=1000, na.rm=TRUE)
-fit
-fit.coords <- as.data.frame(fit$vectors$arrows) * 0.1
+#env2013 <- read.csv("../data/EnvironronmentalFactors2013.csv", header=TRUE)
+#soil2013 <- env2013[,(9:14)]
+#fit <- envfit(pcoa,soil2013,perm=1000, na.rm=TRUE)
+#fit
+#fit.coords <- as.data.frame(fit$vectors$arrows) * 0.1
 
 #Plot
 df5a <- as.data.frame(pcoa.cent.dataframe)
@@ -941,22 +936,22 @@ theme(panel.background = element_blank()) +
   geom_point(aes(fill=pcoa.col), colour = "black", size=5, stroke = 0.75, show.legend = FALSE) + 
   
   # Env Fit Vectors: Scaled at 150% for visual appearence
-  geom_segment(data=fit.coords,aes(x=0,xend=Dim1 * 1.5,y=0,yend=Dim2 * 1.5), 
-               arrow = arrow(length = unit(0.25, "cm")), 
-               colour="grey20", linetype=c(4,4,1,1,4,4), inherit.aes = FALSE) + 
-  geom_segment(data=fit.coords,aes(x=Dim1 * 1.5 * 0.98,xend=Dim1 * 1.5,
-                                   y=Dim2 * 1.5 * 0.98,yend=Dim2 * 1.5), 
-               arrow = arrow(length = unit(0.25, "cm")), 
-               colour="grey20", inherit.aes = FALSE) +
-  geom_text(data=fit.coords,aes(x=Dim1 * c(1.6, 1.75, 2.1, 2, 6, 6),
-                                y=Dim2 * c(1.6, 1.6, 1.45, 1.65, 1.75, 1.6), 
-                                label=rownames(fit.coords)),
-            size=3, inherit.aes = FALSE) +
+  #geom_segment(data=fit.coords,aes(x=0,xend=Dim1 * 1.5,y=0,yend=Dim2 * 1.5), 
+               #arrow = arrow(length = unit(0.25, "cm")), 
+               #colour="grey20", linetype=c(4,4,1,1,4,4), inherit.aes = FALSE) + 
+  #geom_segment(data=fit.coords,aes(x=Dim1 * 1.5 * 0.98,xend=Dim1 * 1.5,
+                                   #y=Dim2 * 1.5 * 0.98,yend=Dim2 * 1.5), 
+               #arrow = arrow(length = unit(0.25, "cm")), 
+               #colour="grey20", inherit.aes = FALSE) +
+  #geom_text(data=fit.coords,aes(x=Dim1 * c(1.6, 1.75, 2.1, 2, 6, 6),
+                                #y=Dim2 * c(1.6, 1.6, 1.45, 1.65, 1.75, 1.6), 
+                                #label=rownames(fit.coords)),
+            #size=3, inherit.aes = FALSE) +
   scale_colour_manual(labels = c("Annual","Perennial"), 
                       values = c("#D55E00", "#0072B2")) + 
   scale_fill_manual(labels = c("Annual","Perennial"), 
                     values = c("#D55E00", "#0072B2")) + 
-  scale_shape_manual(labels = c("HighN","LowN","Organic"),
+  scale_shape_manual(labels = c("High N","Low N","Organic"),
                      values = c(21, 24, 22)) +
   coord_cartesian(xlim = c(-0.2, 0.25), ylim = c(-0.2, 0.27)) + 
   theme(axis.title = element_text(size=14), axis.text=element_text(size=14), 
@@ -1124,6 +1119,6 @@ table(indicators$Cluster)
 levels(design.type)
 
 # Export Nematod Indicator Table
-write.table(indicators, "../data/NemaIndicators_Plant.txt",
+write.table(indicators, "../data/NemaIndicators_Mgmt.txt",
             sep="\t", row.names = F, quote = F)
 ```
