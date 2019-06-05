@@ -30,4 +30,4 @@ Sprunger, C., S.W. Culman, A.L. Peralta, S.T. DuPont, J.T. Lennon, and S.S. Snap
 
 [Dr. Ariane Peralta](http://www.peraltalab.com): Assistant Professor, Department of Biology, East Carolina University. Principal Investigator of the [Peralta Lab](http://www.peraltalab.com)
 
-[Mario Muscarella](http://mmuscarella.github.io/): Postdoc in the [O'Dwyer Lab](https://publish.illinois.edu/odwyerlab/) at the University of Illinois at Urbana-Champaign
+[Dr. Mario Muscarella](http://mmuscarella.github.io/): Postdoc in the [O'Dwyer Lab](https://publish.illinois.edu/odwyerlab/) at the University of Illinois at Urbana-Champaign
