@@ -6,7 +6,7 @@ For information regarding the project, please visit:
 
 Sprunger, C., S.W. Culman, A.L. Peralta, S.T. DuPont, J.T. Lennon, and S.S. Snapp (2019) Perennial grain crop roots and nitrogen management shape soil food webs and soil carbon dynamics. Soil Biology and Biochemistry. 137. https://doi.org/10.1016/j.soilbio.2019.107573
 
-Raw sequences can be found at NCBI SRA BioProject ID PRJNA548308.
+Raw sequences can be found at NCBI SRA [BioProject ID PRJNA548308](https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA548308).
 
 ## We address the following questions
 
